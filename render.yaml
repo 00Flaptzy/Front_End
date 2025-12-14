@@ -1,0 +1,10 @@
+# render.yaml en la raíz de tu proyecto Angular
+services:
+  - type: web
+    name: pixelxty-frontend
+    env: static
+    buildCommand: npm run build:prod
+    staticPublishPath: dist/pixel-txy-fixed/browser
+    envVars:
+      - key: NODE_VERSION
+        value: 18.17.0

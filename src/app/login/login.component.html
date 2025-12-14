@@ -1,0 +1,321 @@
+<div class="login-container" 
+     style="min-height: 100vh; background: linear-gradient(135deg, #0a0c1f 0%, #1a1d3a 100%); 
+            font-family: 'Poppins', 'Segoe UI', sans-serif; overflow: hidden; position: relative;">
+
+  <!-- Fondo animado mejorado -->
+  <div class="background-animation" style="position: absolute; width: 100%; height: 100%; z-index: 0; overflow: hidden;">
+    
+    <!-- Partículas animadas -->
+    <div *ngFor="let particle of particles" 
+         class="particle"
+         [ngStyle]="{
+           left: particle.left,
+           top: particle.top,
+           width: particle.size + 'px',
+           height: particle.size + 'px',
+           background: particle.color,
+           animationDelay: particle.delay + 's',
+           animationDuration: particle.duration + 's'
+         }"
+         style="position: absolute; border-radius: 50%; animation: floatParticle infinite ease-in-out;">
+    </div>
+
+    <!-- Gradientes animados -->
+    <div class="gradient-circle" 
+         style="position: absolute; top: 10%; left: 10%; width: 500px; height: 500px; 
+                background: radial-gradient(circle, rgba(102, 126, 234, 0.15) 0%, transparent 70%);
+                animation: moveGradient1 25s infinite alternate ease-in-out;">
+    </div>
+    <div class="gradient-circle" 
+         style="position: absolute; bottom: 10%; right: 10%; width: 400px; height: 400px; 
+                background: radial-gradient(circle, rgba(118, 75, 162, 0.1) 0%, transparent 70%);
+                animation: moveGradient2 30s infinite alternate ease-in-out;">
+    </div>
+
+    <!-- Líneas de conexión decorativas -->
+    <div class="connection-line" 
+         style="position: absolute; top: 30%; right: 40%; width: 2px; height: 100px; 
+                background: linear-gradient(to bottom, transparent, rgba(102, 126, 234, 0.5), transparent);
+                transform: rotate(45deg); animation: pulseLine 3s infinite;">
+    </div>
+    <div class="connection-line" 
+         style="position: absolute; bottom: 30%; left: 40%; width: 2px; height: 80px; 
+                background: linear-gradient(to bottom, transparent, rgba(118, 75, 162, 0.5), transparent);
+                transform: rotate(-30deg); animation: pulseLine 4s infinite; animation-delay: 1s;">
+    </div>
+  </div>
+
+  <!-- Contenedor principal -->
+  <div style="display: flex; min-height: 100vh; align-items: center; justify-content: center; 
+              padding: 20px; max-width: 1200px; margin: 0 auto; position: relative; z-index: 10;">
+
+    <!-- Tarjeta de login con diseño glassmorphism -->
+    <div style="width: 100%; max-width: 420px; background: rgba(255, 255, 255, 0.08); 
+                backdrop-filter: blur(12px); border-radius: 24px; padding: 40px 35px;
+                border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);">
+
+      <!-- Logo/Encabezado -->
+      <div style="text-align: center; margin-bottom: 30px;">
+        <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                    border-radius: 16px; display: inline-flex; align-items: center; justify-content: center; 
+                    margin-bottom: 15px;">
+          <svg style="width: 28px; height: 28px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+          </svg>
+        </div>
+        <h1 style="color: white; font-weight: 600; font-size: 28px; margin-bottom: 8px;">Bienvenido</h1>
+        <p style="color: rgba(255, 255, 255, 0.7); font-size: 15px;">Accede a tu cuenta para continuar</p>
+      </div>
+
+      <!-- Formulario -->
+      <div style="margin-bottom: 25px;">
+        <label style="display: block; color: rgba(255, 255, 255, 0.9); margin-bottom: 8px; font-size: 14px;">Correo electrónico</label>
+        <div style="position: relative;">
+          <input type="email" [(ngModel)]="email" placeholder="tucorreo@ejemplo.com"
+                 (keyup.enter)="login()"
+                 [disabled]="loading"
+                 style="width: 100%; padding: 14px 16px 14px 44px; border-radius: 10px; 
+                        border: 1px solid rgba(255, 255, 255, 0.1); outline: none;
+                        background: rgba(255, 255, 255, 0.05); color: white; font-size: 15px;
+                        transition: all 0.3s ease;">
+          <div style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: rgba(255, 255, 255, 0.5);">
+            <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contraseña -->
+      <div style="margin-bottom: 25px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <label style="color: rgba(255, 255, 255, 0.9); font-size: 14px;">Contraseña</label>
+          <a (click)="forgotPassword()" style="cursor: pointer; font-size: 13px; color: #667eea; text-decoration: none;">¿Olvidaste tu contraseña?</a>
+        </div>
+        <div style="position: relative;">
+          <input [type]="showPassword ? 'text' : 'password'" [(ngModel)]="password" 
+                 placeholder="Ingresa tu contraseña"
+                 (keyup.enter)="login()"
+                 [disabled]="loading"
+                 style="width: 100%; padding: 14px 16px 14px 44px; border-radius: 10px; 
+                        border: 1px solid rgba(255, 255, 255, 0.1); outline: none;
+                        background: rgba(255, 255, 255, 0.05); color: white; font-size: 15px;
+                        transition: all 0.3s ease;">
+          <div style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: rgba(255, 255, 255, 0.5);">
+            <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+            </svg>
+          </div>
+          <button type="button" (click)="togglePassword()" 
+                  [disabled]="loading"
+                  style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); 
+                         background: rgba(255, 255, 255, 0.1); border: none; border-radius: 6px; 
+                         color: white; cursor: pointer; padding: 6px; width: 32px; height: 32px;
+                         display: flex; align-items: center; justify-content: center;
+                         transition: all 0.3s ease;">
+            <svg *ngIf="!showPassword" style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+            </svg>
+            <svg *ngIf="showPassword" style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L6.59 6.59m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Error -->
+      <div *ngIf="error" style="background: rgba(255, 107, 107, 0.1); color: #ff6b6b; padding: 12px; 
+                                border-radius: 8px; margin-bottom: 20px; font-size: 14px; 
+                                border-left: 3px solid #ff6b6b; animation: fadeIn 0.3s ease;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          {{ error }}
+        </div>
+      </div>
+
+      <!-- Recordar contraseña -->
+      <div style="margin-bottom: 25px; display: flex; align-items: center; gap: 10px;">
+        <div style="position: relative;">
+          <input type="checkbox" id="remember" [(ngModel)]="remember" 
+                 [disabled]="loading"
+                 style="position: absolute; opacity: 0; width: 18px; height: 18px; cursor: pointer;">
+          <label for="remember" 
+                 style="display: flex; align-items: center; cursor: pointer; 
+                        color: rgba(255, 255, 255, 0.9); font-size: 14px;">
+            <span style="display: inline-block; width: 18px; height: 18px; border: 1.5px solid rgba(255, 255, 255, 0.3); 
+                        border-radius: 4px; margin-right: 10px; position: relative; transition: all 0.2s;">
+              <svg *ngIf="remember" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+                      width: 12px; height: 12px; color: #667eea;" fill="none" stroke="currentColor" viewBox="0 0 24 24" 
+                   xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+              </svg>
+            </span>
+            Recordar mi cuenta
+          </label>
+        </div>
+      </div>
+
+      <!-- Botón de inicio de sesión -->
+      <button (click)="login()" 
+              [disabled]="loading"
+              style="width: 100%; padding: 15px; border-radius: 10px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                     color: white; font-weight: 600; cursor: pointer; border: none; font-size: 15px;
+                     transition: all 0.3s ease; margin-bottom: 25px; 
+                     box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+                     position: relative; overflow: hidden;">
+        
+        <span *ngIf="!loading" style="position: relative; z-index: 1;">Iniciar Sesión</span>
+        
+        <!-- Spinner de carga -->
+        <span *ngIf="loading" style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+          <svg class="spinner" style="width: 18px; height: 18px;" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          Procesando...
+        </span>
+        
+        <!-- Efecto de onda al hacer clic -->
+        <span class="ripple" style="position: absolute; border-radius: 50%; background: rgba(255, 255, 255, 0.3);
+               transform: scale(0); animation: ripple 0.6s linear;"></span>
+      </button>
+
+      <!-- Divisor -->
+      <div style="display: flex; align-items: center; margin-bottom: 25px;">
+        <div style="flex: 1; height: 1px; background: rgba(255, 255, 255, 0.1);"></div>
+        <div style="padding: 0 15px; color: rgba(255, 255, 255, 0.5); font-size: 14px;">O continuar con</div>
+        <div style="flex: 1; height: 1px; background: rgba(255, 255, 255, 0.1);"></div>
+      </div>
+
+      <!-- Botón de Google -->
+      <button (click)="signInWithGoogle()" 
+              [disabled]="loading"
+              style="width: 100%; padding: 14px; border-radius: 10px; background: rgba(255, 255, 255, 0.08); 
+                     color: white; border: 1px solid rgba(255, 255, 255, 0.1); cursor: pointer; 
+                     font-size: 15px; transition: all 0.3s ease; display: flex; align-items: center; 
+                     justify-content: center; gap: 10px;">
+        <svg style="width: 18px; height: 18px;" viewBox="0 0 24 24">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+        </svg>
+        Iniciar sesión con Google
+      </button>
+
+      <!-- Enlace a registro -->
+      <div style="margin-top: 30px; text-align: center; color: rgba(255, 255, 255, 0.7); font-size: 14px;">
+        ¿No tienes cuenta? 
+        <a routerLink="/register" style="color: #667eea; text-decoration: none; font-weight: 500; margin-left: 5px;">
+          Crear una cuenta
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Animaciones CSS -->
+<style>
+  @keyframes floatParticle {
+    0%, 100% { transform: translateY(0) translateX(0); }
+    25% { transform: translateY(-20px) translateX(10px); }
+    50% { transform: translateY(0) translateX(20px); }
+    75% { transform: translateY(20px) translateX(10px); }
+  }
+
+  @keyframes moveGradient1 {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(30px, 30px); }
+  }
+
+  @keyframes moveGradient2 {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(-40px, -20px); }
+  }
+
+  @keyframes pulseLine {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  @keyframes ripple {
+    to {
+      transform: scale(4);
+      opacity: 0;
+    }
+  }
+
+  /* Efectos hover */
+  input:focus {
+    border-color: rgba(102, 126, 234, 0.5) !important;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+  }
+
+  button:not(:disabled):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4) !important;
+  }
+
+  button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed !important;
+    transform: none !important;
+    box-shadow: none !important;
+  }
+
+  button[type="button"]:not(:disabled):hover {
+    background: rgba(255, 255, 255, 0.15) !important;
+  }
+
+  a:hover {
+    opacity: 0.8;
+  }
+
+  /* Estilos para el checkbox */
+  input[type="checkbox"]:checked + label span {
+    border-color: #667eea !important;
+    background: rgba(102, 126, 234, 0.1);
+  }
+
+  /* Spinner de carga */
+  .spinner {
+    animation: spin 1s linear infinite;
+  }
+
+  /* Efecto de onda */
+  .ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(0);
+    animation: ripple 0.6s linear;
+  }
+
+  /* Responsive */
+  @media (max-width: 480px) {
+    .login-container > div:last-child {
+      padding: 10px !important;
+    }
+    
+    .login-container > div:last-child > div {
+      padding: 30px 20px !important;
+    }
+    
+    h1 {
+      font-size: 24px !important;
+    }
+  }
+</style>

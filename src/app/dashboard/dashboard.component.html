@@ -1,0 +1,821 @@
+<div class="dashboard-container">
+  <!-- Notificaciones Flotantes -->
+  <div class="notificaciones-flotantes">
+    <div *ngFor="let notif of notificacionesFlotantes" 
+         [class]="'notificacion ' + notif.tipo"
+         [class.salir]="!notif.visible">
+      <div class="notificacion-icono">
+        <span class="material-icons">{{notif.icono}}</span>
+      </div>
+      <div class="notificacion-contenido">
+        <div class="notificacion-titulo">{{notif.titulo}}</div>
+        <div class="notificacion-mensaje">{{notif.mensaje}}</div>
+      </div>
+      <button class="notificacion-cerrar" (click)="eliminarNotificacionFlotante(notif.id)">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Navbar Superior -->
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <div class="logo">
+        <span class="material-icons">school</span>
+      </div>
+      <div>
+        <h2>AcademicFlow</h2>
+        <div class="subtitle">Panel de Control Académico</div>
+      </div>
+    </div>
+    
+    <div class="navbar-actions">
+      <!-- Estado del Sistema -->
+      <div class="estado-sistema" [style.color]="getColorEstado()">
+        <span class="material-icons">circle</span>
+        {{getEstadoSistema()}}
+      </div>
+      
+      <!-- Reloj -->
+      <div class="reloj">
+        <span class="material-icons">schedule</span>
+        {{horaActual}}
+      </div>
+      
+      <!-- Perfil de Usuario -->
+      <div class="user-profile" (click)="abrirModalUsuario()" style="cursor: pointer;">
+        <div class="avatar">
+          <span class="material-icons">person</span>
+        </div>
+        <div>
+          <div class="welcome">Bienvenido</div>
+          <div class="username">{{usuario.nombre}}</div>
+        </div>
+      </div>
+      
+      <!-- Botón Cerrar Sesión -->
+      <button class="logout-btn" (click)="logout()">
+        <span class="material-icons">logout</span>
+        Cerrar Sesión
+      </button>
+    </div>
+  </nav>
+
+  <!-- Contenido Principal -->
+  <div class="main-content">
+    <!-- Cards de Métricas -->
+    <div class="metrics-grid">
+      <!-- Total de Tareas -->
+      <div class="metric-card">
+        <div class="metric-header">
+          <div>
+            <div class="metric-label">Total de Tareas</div>
+            <div class="metric-value">{{totalTareas}}</div>
+          </div>
+          <div class="metric-icon task-icon">
+            <span class="material-icons">assignment</span>
+          </div>
+        </div>
+        <div class="metric-details">
+          <div class="detail-item">
+            <div class="detail-dot completada"></div>
+            <span>Completadas</span>
+            <div class="detail-value">{{tareasCompletadas}}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-dot pendiente"></div>
+            <span>Pendientes</span>
+            <div class="detail-value">{{tareasPendientes}}</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Horarios Activos -->
+      <div class="metric-card">
+        <div class="metric-header">
+          <div>
+            <div class="metric-label">Horarios Activos</div>
+            <div class="metric-value">{{getTotalHorarios()}}</div>
+          </div>
+          <div class="metric-icon schedule-icon">
+            <span class="material-icons">schedule</span>
+          </div>
+        </div>
+        <div class="metric-details">
+          <div class="detail-item">
+            <div class="detail-dot hora"></div>
+            <span>Horas totales</span>
+            <div class="detail-value">{{getHorasTotalesEstudio()}}h</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-dot dia"></div>
+            <span>Día más ocupado</span>
+            <div class="detail-value">{{getDiaMasOcupado()}}</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Productividad -->
+      <div class="metric-card">
+        <div class="metric-header">
+          <div>
+            <div class="metric-label">Productividad</div>
+            <div class="metric-value">{{porcentajeAvance}}%</div>
+          </div>
+          <div class="metric-icon productivity-icon">
+            <span class="material-icons">trending_up</span>
+          </div>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" [style.width.%]="porcentajeAvance"></div>
+        </div>
+        <div class="progress-text">
+          <span>{{tareasCompletadas}} de {{totalTareas}} tareas completadas</span>
+          <span>{{porcentajeAvance}}%</span>
+        </div>
+        <div class="metric-footer">
+          <button (click)="abrirModalGrafico()" class="ver-grafico-btn">
+            <span class="material-icons">insights</span>
+            Ver Análisis
+          </button>
+        </div>
+      </div>
+      
+      <!-- Tiempo Activo -->
+      <div class="metric-card">
+        <div class="metric-header">
+          <div>
+            <div class="metric-label">Tiempo Activo</div>
+            <div class="metric-value">{{tiempoActivo}}</div>
+          </div>
+          <div class="metric-icon time-icon">
+            <span class="material-icons">timer</span>
+          </div>
+        </div>
+        <div class="metric-footer">
+          <span class="material-icons">calendar_today</span>
+          {{fechaActual}}
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel Principal -->
+    <div class="main-panel">
+      <!-- Panel de Tareas -->
+      <div class="tasks-panel">
+        <div class="panel-header">
+          <div>
+            <h3><span class="material-icons">assignment</span> Gestión de Tareas</h3>
+            <p>Administra y organiza tus tareas académicas</p>
+          </div>
+          <div class="panel-actions">
+            <button (click)="cargarTareas()" class="refresh-btn" [disabled]="loading">
+              <span class="material-icons">refresh</span>
+              {{loading ? 'Cargando...' : 'Actualizar'}}
+            </button>
+            <button (click)="mostrarModalTarea = true" class="new-task-btn">
+              <span class="material-icons">add</span>
+              Nueva Tarea
+            </button>
+          </div>
+        </div>
+        
+        <!-- Filtros -->
+        <div class="filters">
+          <button 
+            [class.active]="filtroTarea === 'todas'" 
+            (click)="filtroTarea = 'todas'">
+            <span class="material-icons">list</span>
+            Todas ({{totalTareas}})
+          </button>
+          <button 
+            [class.active]="filtroTarea === 'pendientes'" 
+            (click)="filtroTarea = 'pendientes'">
+            <span class="material-icons">pending</span>
+            Pendientes ({{tareasPendientes}})
+          </button>
+          <button 
+            [class.active]="filtroTarea === 'completadas'" 
+            (click)="filtroTarea = 'completadas'">
+            <span class="material-icons">check_circle</span>
+            Completadas ({{tareasCompletadas}})
+          </button>
+        </div>
+        
+        <!-- Lista de Tareas -->
+        <div class="tasks-list">
+          <div *ngIf="tareasFiltradas.length === 0" class="empty-state">
+            <div class="empty-icon">
+              <span class="material-icons">assignment</span>
+            </div>
+            <h4>No hay tareas registradas</h4>
+            <p>Comienza registrando tus tareas académicas para organizar tu tiempo</p>
+            <button (click)="mostrarModalTarea = true" class="new-task-btn">
+              <span class="material-icons">add</span>
+              Crear mi primera tarea
+            </button>
+          </div>
+          
+          <div *ngFor="let tarea of tareasFiltradas" class="task-item">
+            <div class="task-checkbox" (click)="completarTarea(tarea.id)">
+              <span *ngIf="tarea.completada" class="material-icons check-icon">check_circle</span>
+              <span *ngIf="!tarea.completada" class="material-icons uncheck-icon">radio_button_unchecked</span>
+            </div>
+            
+            <div class="task-content">
+              <div class="task-header">
+                <h4 [class.completada]="tarea.completada">{{tarea.titulo}}</h4>
+                <div class="task-meta">
+                  <span class="task-date">
+                    <span class="material-icons">calendar_today</span>
+                    {{formatearFecha(tarea.fechaLimite)}}
+                  </span>
+                  <span class="task-priority" [style.color]="getColorPrioridad(tarea.prioridad)">
+                    <span class="material-icons">flag</span>
+                    {{tarea.prioridad}}
+                  </span>
+                </div>
+              </div>
+              
+              <p class="task-desc" *ngIf="tarea.descripcion">{{tarea.descripcion}}</p>
+              
+              <div class="task-actions">
+                <button 
+                  *ngIf="!tarea.completada"
+                  (click)="completarTarea(tarea.id)"
+                  class="complete-btn">
+                  <span class="material-icons">check</span>
+                  Completar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Panel de Horarios (VISUAL) -->
+      <div class="schedule-panel">
+        <div class="panel-header">
+          <div>
+            <h3><span class="material-icons">schedule</span> Horario Académico</h3>
+            <p>Visualiza tu horario de clases y actividades</p>
+          </div>
+          <div class="panel-actions">
+            <button (click)="cargarHorarios()" class="refresh-btn" [disabled]="loading">
+              <span class="material-icons">refresh</span>
+              Actualizar
+            </button>
+            <button (click)="mostrarModalHorario = true" class="new-schedule-btn">
+              <span class="material-icons">add</span>
+              Nuevo Horario
+            </button>
+          </div>
+        </div>
+        
+        <!-- Horario Visual -->
+        <div class="horario-visual">
+          <div class="horario-header">
+            <div class="hora-columna">
+              <div class="hora-header">Hora</div>
+              <div class="horas-lista">
+                <div *ngFor="let hora of ['07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00']" 
+                     class="hora-item">
+                  {{hora}}
+                </div>
+              </div>
+            </div>
+            
+            <div class="dias-container">
+              <div *ngFor="let dia of diasSemana" class="dia-columna">
+                <div class="dia-header">{{getNombreDia(dia)}}</div>
+                <div class="clases-container">
+                  <div *ngFor="let horario of horariosPorDia[dia]" 
+                       class="clase-item"
+                       [style.top]="calcularPosicion(horario.horaInicio)"
+                       [style.height]="calcularAltura(horario.horaInicio, horario.horaFin)">
+                    <div class="clase-header">
+                      <div class="clase-actividad">{{horario.actividad}}</div>
+                      <div class="clase-actions">
+                        <button (click)="abrirModalEditarHorario(horario)" class="clase-action-btn">
+                          <span class="material-icons">edit</span>
+                        </button>
+                        <button (click)="eliminarHorario(horario.id)" class="clase-action-btn delete">
+                          <span class="material-icons">delete</span>
+                        </button>
+                      </div>
+                    </div>
+                    <div class="clase-hora">{{horario.horaInicio}} - {{horario.horaFin}}</div>
+                    <div class="clase-duracion">{{getDuracionHorario(horario.horaInicio, horario.horaFin)}}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel de Alertas -->
+    <div class="alerts-panel">
+      <div class="panel-header">
+        <div>
+          <h3><span class="material-icons">notifications</span> Alertas del Sistema</h3>
+          <p>Notificaciones y alertas importantes</p>
+        </div>
+        <div class="alert-badge" *ngIf="alertasCriticas > 0">
+          {{alertasCriticas}}
+        </div>
+      </div>
+      
+      <div class="alerts-list">
+        <div *ngIf="alertas.length === 0" class="empty-state">
+          <div class="empty-icon">
+            <span class="material-icons">notifications_none</span>
+          </div>
+          <h4>No hay alertas activas</h4>
+          <p>Todas las notificaciones están al día</p>
+        </div>
+        
+        <div *ngFor="let alerta of alertas" 
+             [class]="'alert-item ' + alerta.tipo">
+          <div class="alert-icon">
+            <span class="material-icons">{{alerta.icono}}</span>
+          </div>
+          
+          <div class="alert-content">
+            <div class="alert-header">
+              <h4>{{alerta.titulo}}</h4>
+              <span class="alert-time">
+                <span class="material-icons">schedule</span>
+                {{alerta.fecha}}
+              </span>
+            </div>
+            <p>{{alerta.mensaje}}</p>
+          </div>
+          
+          <button (click)="eliminarAlerta(alerta.id)" class="alert-close">
+            <span class="material-icons">close</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== MODALES ========== -->
+
+  <!-- Modal Nueva Tarea -->
+  <div *ngIf="mostrarModalTarea" class="modal-overlay" (click)="mostrarModalTarea = false">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3><span class="material-icons">add_task</span> Crear Nueva Tarea</h3>
+        <button (click)="mostrarModalTarea = false" class="modal-close">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="form-group">
+          <label><span class="material-icons">title</span> Título</label>
+          <input type="text" [(ngModel)]="nuevaTarea.titulo" placeholder="Ej: Proyecto de Matemáticas">
+        </div>
+        
+        <div class="form-group">
+          <label><span class="material-icons">description</span> Descripción</label>
+          <textarea [(ngModel)]="nuevaTarea.descripcion" rows="3" 
+                    placeholder="Descripción detallada de la tarea..."></textarea>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label><span class="material-icons">calendar_today</span> Fecha Límite</label>
+            <input type="datetime-local" [(ngModel)]="nuevaTarea.fechaLimite">
+          </div>
+          
+          <div class="form-group">
+            <label><span class="material-icons">flag</span> Prioridad</label>
+            <select [(ngModel)]="nuevaTarea.prioridad">
+              <option value="alta">Alta</option>
+              <option value="media">Media</option>
+              <option value="baja">Baja</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label><span class="material-icons">link</span> Asociar a Horario (Opcional)</label>
+          <select [(ngModel)]="nuevaTarea.horarioId">
+            <option [value]="null">Sin horario específico</option>
+            <option *ngFor="let horario of horarios" [value]="horario.id">
+              {{horario.actividad}} - {{getNombreDia(horario.dia)}} {{horario.horaInicio}}
+            </option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button (click)="mostrarModalTarea = false" class="cancel-btn">
+          <span class="material-icons">cancel</span>
+          Cancelar
+        </button>
+        <button (click)="crearTarea()" class="save-btn">
+          <span class="material-icons">save</span>
+          Crear Tarea
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Nuevo Horario -->
+  <div *ngIf="mostrarModalHorario" class="modal-overlay" (click)="mostrarModalHorario = false">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3><span class="material-icons">add_alarm</span> Crear Nuevo Horario</h3>
+        <button (click)="mostrarModalHorario = false" class="modal-close">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="form-group">
+          <label><span class="material-icons">class</span> Actividad</label>
+          <input type="text" [(ngModel)]="nuevoHorario.actividad" 
+                 placeholder="Ej: Matemáticas, Laboratorio, etc.">
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label><span class="material-icons">calendar_view_day</span> Día</label>
+            <select [(ngModel)]="nuevoHorario.dia">
+              <option *ngFor="let dia of diasSemana" [value]="dia">
+                {{getNombreDia(dia)}}
+              </option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label><span class="material-icons">access_time</span> Hora Inicio</label>
+            <select [(ngModel)]="nuevoHorario.horaInicio">
+              <option *ngFor="let hora of horasDisponibles" [value]="hora">
+                {{hora}}
+              </option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label><span class="material-icons">access_time</span> Hora Fin</label>
+            <select [(ngModel)]="nuevoHorario.horaFin">
+              <option *ngFor="let hora of horasDisponibles" [value]="hora">
+                {{hora}}
+              </option>
+            </select>
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button (click)="mostrarModalHorario = false" class="cancel-btn">
+          <span class="material-icons">cancel</span>
+          Cancelar
+        </button>
+        <button (click)="crearHorario()" class="save-btn">
+          <span class="material-icons">save</span>
+          Crear Horario
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Editar Horario -->
+  <div *ngIf="mostrarModalEditarHorario" class="modal-overlay" (click)="mostrarModalEditarHorario = false">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3><span class="material-icons">edit_calendar</span> Editar Horario</h3>
+        <button (click)="mostrarModalEditarHorario = false" class="modal-close">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+      
+      <div class="modal-body" *ngIf="horarioEditando">
+        <div class="form-group">
+          <label><span class="material-icons">class</span> Actividad</label>
+          <input type="text" [(ngModel)]="horarioEditando.actividad" 
+                 placeholder="Ej: Matemáticas, Laboratorio, etc.">
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label><span class="material-icons">calendar_view_day</span> Día</label>
+            <select [(ngModel)]="horarioEditando.dia">
+              <option *ngFor="let dia of diasSemana" [value]="dia">
+                {{getNombreDia(dia)}}
+              </option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label><span class="material-icons">access_time</span> Hora Inicio</label>
+            <select [(ngModel)]="horarioEditando.horaInicio">
+              <option *ngFor="let hora of horasDisponibles" [value]="hora">
+                {{hora}}
+              </option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label><span class="material-icons">access_time</span> Hora Fin</label>
+            <select [(ngModel)]="horarioEditando.horaFin">
+              <option *ngFor="let hora of horasDisponibles" [value]="hora">
+                {{hora}}
+              </option>
+            </select>
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button (click)="mostrarModalEditarHorario = false" class="cancel-btn">
+          <span class="material-icons">cancel</span>
+          Cancelar
+        </button>
+        <button (click)="actualizarHorario()" class="save-btn">
+          <span class="material-icons">save</span>
+          Actualizar Horario
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Gráfico de Análisis -->
+  <div *ngIf="mostrarModalGrafico" class="modal-overlay" (click)="mostrarModalGrafico = false">
+    <div class="modal modal-xl" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3><span class="material-icons">insights</span> Análisis de Productividad</h3>
+        <button (click)="mostrarModalGrafico = false" class="modal-close">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+      
+      <div class="modal-body">
+        <!-- Selector de período -->
+        <div class="periodo-selector">
+          <div class="periodo-tabs">
+            <button class="periodo-tab active">
+              <span class="material-icons">calendar_view_week</span>
+              Esta Semana
+            </button>
+            <button class="periodo-tab">
+              <span class="material-icons">calendar_view_month</span>
+              Este Mes
+            </button>
+            <button class="periodo-tab">
+              <span class="material-icons">calendar_today</span>
+              Últimos 6 Meses
+            </button>
+          </div>
+        </div>
+        
+        <!-- Gráfico tipo TradingView -->
+        <div class="trading-chart">
+          <div class="chart-header">
+            <div class="chart-title">
+              <h4>📊 Evolución de Productividad</h4>
+              <span class="chart-subtitle">Porcentaje de tareas completadas por día</span>
+            </div>
+            <div class="chart-actions">
+              <button class="chart-action-btn">
+                <span class="material-icons">download</span>
+              </button>
+              <button class="chart-action-btn">
+                <span class="material-icons">share</span>
+              </button>
+            </div>
+          </div>
+          
+          <div class="chart-container">
+            <!-- Gráfico simulado tipo TradingView -->
+            <div class="trading-grid">
+              <!-- Eje Y -->
+              <div class="y-axis">
+                <div class="y-tick">100%</div>
+                <div class="y-tick">80%</div>
+                <div class="y-tick">60%</div>
+                <div class="y-tick">40%</div>
+                <div class="y-tick">20%</div>
+                <div class="y-tick">0%</div>
+              </div>
+              
+              <!-- Área del gráfico -->
+              <div class="chart-area">
+                <!-- Línea del gráfico -->
+                <div class="chart-line">
+                  <div class="data-point" style="left: 5%; top: 30%;"></div>
+                  <div class="data-point" style="left: 20%; top: 45%;"></div>
+                  <div class="data-point" style="left: 35%; top: 70%;"></div>
+                  <div class="data-point" style="left: 50%; top: 85%;"></div>
+                  <div class="data-point" style="left: 65%; top: 65%;"></div>
+                  <div class="data-point" style="left: 80%; top: 90%;"></div>
+                  <div class="data-point" style="left: 95%; top: 75%;"></div>
+                </div>
+                
+                <!-- Área bajo la curva -->
+                <div class="chart-fill"></div>
+                
+                <!-- Líneas de grid -->
+                <div class="grid-line" style="top: 20%;"></div>
+                <div class="grid-line" style="top: 40%;"></div>
+                <div class="grid-line" style="top: 60%;"></div>
+                <div class="grid-line" style="top: 80%;"></div>
+              </div>
+            </div>
+            
+            <!-- Eje X -->
+            <div class="x-axis">
+              <div class="x-tick">Lun</div>
+              <div class="x-tick">Mar</div>
+              <div class="x-tick">Mié</div>
+              <div class="x-tick">Jue</div>
+              <div class="x-tick">Vie</div>
+              <div class="x-tick">Sáb</div>
+              <div class="x-tick">Dom</div>
+            </div>
+          </div>
+          
+          <!-- Estadísticas en tiempo real -->
+          <div class="chart-stats">
+            <div class="stat-item">
+              <div class="stat-label">📈 Máximo hoy</div>
+              <div class="stat-value">92%</div>
+              <div class="stat-change positive">+12%</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">📉 Mínimo hoy</div>
+              <div class="stat-value">68%</div>
+              <div class="stat-change negative">-5%</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">📊 Promedio</div>
+              <div class="stat-value">{{porcentajeAvance}}%</div>
+              <div class="stat-change positive">+8%</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">🎯 Objetivo</div>
+              <div class="stat-value">85%</div>
+              <div class="stat-progress">
+                <div class="progress-bar">
+                  <div class="progress-fill" [style.width.%]="porcentajeAvance"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Detalles del gráfico -->
+        <div class="chart-details">
+          <div class="detail-card">
+            <div class="detail-header">
+              <span class="material-icons">trending_up</span>
+              <h5>Tendencia Semanal</h5>
+            </div>
+            <div class="detail-content">
+              <p>Tu productividad ha aumentado un <strong>15%</strong> respecto a la semana pasada.</p>
+              <div class="trend-indicator positive">
+                <span class="material-icons">arrow_upward</span>
+                <span>Tendencia positiva</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="detail-card">
+            <div class="detail-header">
+              <span class="material-icons">schedule</span>
+              <h5>Horas Pico</h5>
+            </div>
+            <div class="detail-content">
+              <p>Mayor productividad entre <strong>10:00 - 12:00</strong> y <strong>15:00 - 17:00</strong>.</p>
+              <div class="peak-hours">
+                <span class="peak-badge">⏰ Mañana</span>
+                <span class="peak-badge">⏰ Tarde</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="detail-card">
+            <div class="detail-header">
+              <span class="material-icons">emoji_events</span>
+              <h5>Logros</h5>
+            </div>
+            <div class="detail-content">
+              <p>Has completado <strong>{{tareasCompletadas}}</strong> tareas de <strong>{{totalTareas}}</strong> este mes.</p>
+              <div class="achievement-badge">
+                <span class="material-icons">star</span>
+                <span>Consistencia: {{porcentajeAvance}}%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <div class="footer-actions">
+          <button class="export-btn">
+            <span class="material-icons">picture_as_pdf</span>
+            Exportar PDF
+          </button>
+          <button (click)="mostrarModalGrafico = false" class="close-btn">
+            <span class="material-icons">close</span>
+            Cerrar Análisis
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Información de Usuario -->
+  <div *ngIf="mostrarModalUsuario" class="modal-overlay" (click)="mostrarModalUsuario = false">
+    <div class="modal modal-lg" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3><span class="material-icons">person</span> Información del Usuario</h3>
+        <button (click)="mostrarModalUsuario = false" class="modal-close">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="user-info-container">
+          <div class="user-avatar-large">
+            <span class="material-icons">account_circle</span>
+          </div>
+          
+          <div class="user-details">
+            <div class="detail-row">
+              <div class="detail-label">
+                <span class="material-icons">badge</span>
+                Nombre Completo
+              </div>
+              <div class="detail-value">{{getNombreCompleto()}}</div>
+            </div>
+            
+            <div class="detail-row">
+              <div class="detail-label">
+                <span class="material-icons">email</span>
+                Correo Electrónico
+              </div>
+              <div class="detail-value">{{usuario.email}}</div>
+            </div>
+            
+            <div class="detail-row">
+              <div class="detail-label">
+                <span class="material-icons">security</span>
+                Rol
+              </div>
+              <div class="detail-value badge-rol">{{usuario.rol}}</div>
+            </div>
+            
+            <div class="detail-row">
+              <div class="detail-label">
+                <span class="material-icons">fingerprint</span>
+                ID de Usuario
+              </div>
+              <div class="detail-value">{{usuario.id}}</div>
+            </div>
+            
+            <div class="detail-row">
+              <div class="detail-label">
+                <span class="material-icons">timer</span>
+                Tiempo Activo
+              </div>
+              <div class="detail-value">{{tiempoActivo}}</div>
+            </div>
+            
+            <div class="detail-row">
+              <div class="detail-label">
+                <span class="material-icons">assignment</span>
+                Tareas Registradas
+              </div>
+              <div class="detail-value">{{totalTareas}}</div>
+            </div>
+            
+            <div class="detail-row">
+              <div class="detail-label">
+                <span class="material-icons">schedule</span>
+                Horarios Registrados
+              </div>
+              <div class="detail-value">{{getTotalHorarios()}}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button (click)="logout()" class="logout-btn-modal">
+          <span class="material-icons">logout</span>
+          Cerrar Sesión
+        </button>
+        <button (click)="mostrarModalUsuario = false" class="close-btn">
+          <span class="material-icons">close</span>
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
