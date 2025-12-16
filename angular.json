@@ -3,12 +3,17 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "pixel-txy-fixed": {
+    "PixelTxyFront": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
           "style": "scss",
-          "skipTests": true,
+          "standalone": false
+        },
+        "@schematics/angular:directive": {
+          "standalone": false
+        },
+        "@schematics/angular:pipe": {
           "standalone": false
         }
       },
@@ -17,19 +22,20 @@
       "prefix": "app",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:application",
+          "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/pixel-txy-fixed",
+            "outputPath": "dist",
+            "baseHref": "/",
+            "deployUrl": "/",
             "index": "src/index.html",
-            "browser": "src/main.ts",
+            "main": "src/main.ts",
             "polyfills": ["zone.js"],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [
               {
                 "glob": "**/*",
-                "input": "src/public",
-                "output": "."
+                "input": "public"
               }
             ],
             "styles": ["src/styles.scss"],
@@ -37,16 +43,23 @@
           },
           "configurations": {
             "production": {
-              "outputHashing": "all",
-              "fileReplacements": [
+              "budgets": [
                 {
-                  "replace": "src/environments/environment.ts",
-                  "with": "src/environments/environment.prod.ts"
+                  "type": "initial",
+                  "maximumWarning": "500kB",
+                  "maximumError": "1MB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "2kB",
+                  "maximumError": "4kB"
                 }
-              ]
+              ],
+              "outputHashing": "all"
             },
             "development": {
               "optimization": false,
+              "extractLicenses": false,
               "sourceMap": true
             }
           },
@@ -56,10 +69,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "pixel-txy-fixed:build:production"
+              "buildTarget": "PixelTxyFront:build:production"
             },
             "development": {
-              "buildTarget": "pixel-txy-fixed:build:development"
+              "buildTarget": "PixelTxyFront:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -72,10 +85,11 @@
           "options": {
             "polyfills": ["zone.js", "zone.js/testing"],
             "tsConfig": "tsconfig.spec.json",
+            "inlineStyleLanguage": "scss",
             "assets": [
               {
                 "glob": "**/*",
-                "input": "src/public"
+                "input": "public"
               }
             ],
             "styles": ["src/styles.scss"],
@@ -86,6 +100,6 @@
     }
   },
   "cli": {
-    "analytics": "c9c1523d-211f-491c-b383-c358c52572bd"
+    "analytics": false
   }
 }
